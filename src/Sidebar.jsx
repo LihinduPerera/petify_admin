@@ -1,23 +1,27 @@
 import React from 'react'
-import { BiCategory, BiPlusMedical, BiSolidPhotoAlbum } from 'react-icons/bi'
-import { BsBasket, BsBasket2Fill, BsCarFront, BsCarFrontFill, BsCart3, BsCreditCard, BsFileMedicalFill, BsPciCard } from 'react-icons/bs'
-import { DiPhotoshop } from 'react-icons/di'
-import { MdOutlineQueryBuilder, MdPhotoAlbum } from 'react-icons/md'
-import { RiOrderPlayFill } from 'react-icons/ri'
+import { BiCategory,} from 'react-icons/bi'
+import { BsBasket2Fill, BsCreditCard, BsGrid1X2Fill, BsPciCard } from 'react-icons/bs'
+import { FaDog, FaKitMedical } from 'react-icons/fa6'
+import { MdPhotoAlbum } from 'react-icons/md'
 
-function Sidebar() {
+function Sidebar({openSidebarToggle, OpenSidebar}) {
   return (
-    <aside id='sidebar'>
+    <aside id='sidebar' className={openSidebarToggle ? "sidebar-responsive" : ""}>
         <div className='sidebar-title'>
             <div className='sidebar-brand'>
-                <BsCart3 className='icon_header'/> Pet Store
+                <FaDog className='icon_header'/> PETIFY
             </div>
-            <span className='icon close_icon'>X</span>
+            <span className='icon close_icon' onClick={OpenSidebar}>X</span>
         </div>
         <ul className='sidebar-list'>
         <li className='sidebar-list-item'>
                 <a href="">
-                    <BiPlusMedical className='icon'/>Medication
+                    <BsGrid1X2Fill className='icon'/>DashBoard
+                </a>
+            </li>
+        <li className='sidebar-list-item'>
+                <a href="">
+                    <FaKitMedical className='icon'/>Medication
                 </a>
             </li>
             <li className='sidebar-list-item'>
