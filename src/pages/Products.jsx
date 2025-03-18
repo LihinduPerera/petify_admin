@@ -1,16 +1,20 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+
+const API_URL = 'http://192.168.8.200:8000/products';
 
 function Products() {
-  const dummyProducts = [
-    { id: 1, name: 'Product 1', price: 10.0, description: 'A great product.' },
-    { id: 2, name: 'Product 2', price: 20.0, description: 'Another great product.' },
-    { id: 3, name: 'Product 3', price: 30.0, description: 'An amazing product.' },
-  ];
-
-  const [products, setProducts] = useState(dummyProducts);
+  const [products, setProducts] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState(null);
 
-  console.log(products); // Debugging line
+  useEffect(() => {
+    const fetchProducts = async () => {
+      const response = await fetch(API_URL);
+      const data = await response.json();
+      setProducts(data);
+    };
+
+    fetchProducts();
+  }, []);
 
   const handleProductClick = (product) => {
     setSelectedProduct(product);
@@ -24,40 +28,103 @@ function Products() {
     }));
   };
 
-  const handleSave = () => {
-    setProducts((prevProducts) =>
-      prevProducts.map((product) =>
-        product.id === selectedProduct.id ? selectedProduct : product
-      )
-    );
-    alert('Product updated successfully!');
+  const handleSave = async () => {
+    const updatedProduct = { ...selectedProduct };
+
+    const response = await fetch(`${API_URL}/${selectedProduct.id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(updatedProduct),
+    });
+
+    if (response.ok) {
+      const updatedProductData = await response.json();
+      setProducts((prevProducts) =>
+        prevProducts.map((product) =>
+          product.id === updatedProductData.id ? updatedProductData : product
+        )
+      );
+      alert('Product updated successfully!');
+    } else {
+      alert('Failed to update product.');
+    }
+  };
+
+  const handleDelete = async (e, productId) => {
+    e.stopPropagation();
+    const response = await fetch(`${API_URL}/${productId}`, {
+      method: 'DELETE',
+    });
+
+    if (response.ok) {
+      setProducts((prevProducts) =>
+        prevProducts.filter((product) => product.id !== productId)
+      );
+      alert('Product deleted successfully!');
+    } else {
+      alert('Failed to delete product.');
+    }
+  };
+
+  const handleAddProduct = async () => {
+    const newProduct = {
+      name: 'New Product',
+      desc: 'Description for new product.',
+      image: '',
+      old_price: 0,
+      new_price: 0,
+      category: 'Category',
+      quantity: 0,
+    };
+
+    const response = await fetch(API_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(newProduct),
+    });
+
+    if (response.ok) {
+      const addedProduct = await response.json();
+      setProducts((prevProducts) => [...prevProducts, addedProduct]);
+      alert('Product added successfully!');
+    } else {
+      alert('Failed to add product.');
+    }
   };
 
   return (
-    <div style={{ display: 'flex' }}>
-      <div style={{ flex: 1, padding: '20px', borderRight: '1px solid #ccc' }}>
+    <div id='product-page-container'>
+      <div id='product-container'>
         <h2>Products</h2>
-        <ul>
+        <button id='btn-add' onClick={handleAddProduct}>Add Product</button>
+        <ol>
           {products.map((product) => (
             <li
               key={product.id}
               onClick={() => handleProductClick(product)}
               style={{
-                cursor: 'pointer',
-                marginBottom: '10px',
-                padding: '5px',
-                backgroundColor: selectedProduct?.id === product.id ? '#e0e0e0' : '',
+                backgroundColor: selectedProduct?.id === product.id ? '#a6beda36' : '',
               }}
             >
               {product.name}
+              <button id='btn-delete'
+                onClick={(e) => handleDelete(e, product.id)}
+                style={{ marginLeft: '10px' }}
+              >
+                Delete
+              </button>
             </li>
           ))}
-        </ul>
+        </ol>
       </div>
 
       <div style={{ flex: 2, padding: '20px' }}>
         {selectedProduct ? (
-          <div>
+          <div id='edit-product-container'>
             <h2>Edit Product</h2>
             <form>
               <div>
@@ -70,19 +137,55 @@ function Products() {
                 />
               </div>
               <div>
-                <label>Price</label>
-                <input
-                  type="number"
-                  name="price"
-                  value={selectedProduct.price}
+                <label>Description</label>
+                <textarea
+                  name="desc"
+                  value={selectedProduct.desc}
                   onChange={handleInputChange}
                 />
               </div>
               <div>
-                <label>Description</label>
-                <textarea
-                  name="description"
-                  value={selectedProduct.description}
+                <label>Image URL</label>
+                <input
+                  type="text"
+                  name="image"
+                  value={selectedProduct.image}
+                  onChange={handleInputChange}
+                />
+              </div>
+              <div>
+                <label>Old Price</label>
+                <input
+                  type="number"
+                  name="old_price"
+                  value={selectedProduct.old_price}
+                  onChange={handleInputChange}
+                />
+              </div>
+              <div>
+                <label>New Price</label>
+                <input
+                  type="number"
+                  name="new_price"
+                  value={selectedProduct.new_price}
+                  onChange={handleInputChange}
+                />
+              </div>
+              <div>
+                <label>Category</label>
+                <input
+                  type="text"
+                  name="category"
+                  value={selectedProduct.category}
+                  onChange={handleInputChange}
+                />
+              </div>
+              <div>
+                <label>Quantity</label>
+                <input
+                  type="number"
+                  name="quantity"
+                  value={selectedProduct.quantity}
                   onChange={handleInputChange}
                 />
               </div>

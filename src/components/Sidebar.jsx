@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { BiCategory } from 'react-icons/bi';
 import { BsBasket2Fill, BsCreditCard, BsGrid1X2Fill, BsPciCard } from 'react-icons/bs';
-import { FaKitMedical } from 'react-icons/fa6';
+import { FaDog, FaKitMedical } from 'react-icons/fa6';
 import { MdPhotoAlbum } from 'react-icons/md';
 
 function Sidebar({ openSidebarToggle, OpenSidebar }) {
@@ -10,7 +10,7 @@ function Sidebar({ openSidebarToggle, OpenSidebar }) {
         <aside id='sidebar' className={openSidebarToggle ? 'sidebar-responsive' : ''}>
             <div className='sidebar-title'>
                 <div className='sidebar-brand'>
-                    <FaKitMedical className='icon_header' /> PETIFY
+                    <FaDog className='icon_header' /> PETIFY
                 </div>
                 <span className='icon close_icon' onClick={OpenSidebar}>X</span>
             </div>
