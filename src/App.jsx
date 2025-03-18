@@ -9,6 +9,7 @@ import Orders from './pages/Orders'
 import Promos from './pages/Promos'
 import Banners from './pages/Banners'
 import Categories from './pages/Categories'
+import Products from './pages/Products'
 
 function App() {
   const [openSidebarToggle, setOpenSidebarToggle] = useState(false)
@@ -26,7 +27,7 @@ function App() {
             <Route path="/" element={<Home/>} />
             <Route path='/medication' element={<Medication/>} />
             <Route path='/orders' element={<Orders/>} />
-            <Route path='/products' element={<Medication/>} />
+            <Route path='/products' element={<Products/>} />
             <Route path='/promos' element={<Promos/>} />
             <Route path='/banners' element={<Banners/>} />
             <Route path='/categories' element={<Categories/>} />
