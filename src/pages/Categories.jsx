@@ -45,7 +45,6 @@ function Categories() {
           category.id === updatedCategoryData.id ? updatedCategoryData : category
         )
       );
-      alert('Category updated successfully!');
     } else {
       alert('Failed to update category.');
     }
@@ -62,7 +61,6 @@ function Categories() {
       setCategories((prevCategories) =>
         prevCategories.filter((category) => category.id !== categoryId)
       );
-      alert('Category deleted successfully!');
     } else {
       alert('Failed to delete category.')
     }
@@ -86,7 +84,6 @@ function Categories() {
     if (response.ok) {
       const addedCategory = await response.json();
       setCategories((prevCategories) => [...prevCategories, addedCategory]);
-      alert('Category added successfully!');
     } else {
       alert('Failed to add category');
     }

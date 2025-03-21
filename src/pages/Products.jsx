@@ -46,7 +46,6 @@ function Products() {
           product.id === updatedProductData.id ? updatedProductData : product
         )
       );
-      alert('Product updated successfully!');
     } else {
       alert('Failed to update product.');
     }
@@ -62,7 +61,6 @@ function Products() {
       setProducts((prevProducts) =>
         prevProducts.filter((product) => product.id !== productId)
       );
-      alert('Product deleted successfully!');
     } else {
       alert('Failed to delete product.');
     }
@@ -90,7 +88,6 @@ function Products() {
     if (response.ok) {
       const addedProduct = await response.json();
       setProducts((prevProducts) => [...prevProducts, addedProduct]);
-      alert('Product added successfully!');
     } else {
       alert('Failed to add product.');
     }
