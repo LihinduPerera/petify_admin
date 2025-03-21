@@ -5,12 +5,17 @@ const API_URL = 'http://192.168.8.200:8000/products';
 function Products() {
   const [products, setProducts] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     const fetchProducts = async () => {
+      setLoading(true);
       const response = await fetch(API_URL);
       const data = await response.json();
       setProducts(data);
+      setLoading(false);
     };
 
     fetchProducts();
@@ -29,6 +34,7 @@ function Products() {
   };
 
   const handleSave = async () => {
+    setSaving(true);
     const updatedProduct = { ...selectedProduct };
 
     const response = await fetch(`${API_URL}/${selectedProduct.id}`, {
@@ -49,10 +55,13 @@ function Products() {
     } else {
       alert('Failed to update product.');
     }
+    setSaving(false);
   };
 
   const handleDelete = async (e, productId) => {
     e.stopPropagation();
+    setDeleting(true);
+
     const response = await fetch(`${API_URL}/${productId}`, {
       method: 'DELETE',
     });
@@ -64,9 +73,11 @@ function Products() {
     } else {
       alert('Failed to delete product.');
     }
+    setDeleting(false);
   };
 
   const handleAddProduct = async () => {
+    setLoading(true);
     const newProduct = {
       name: 'New Product',
       desc: 'Description for new product.',
@@ -91,13 +102,16 @@ function Products() {
     } else {
       alert('Failed to add product.');
     }
+    setLoading(false);
   };
 
   return (
-    <div id='product-page-container' className='crud-page-container'>
-      <div id='product-container' className='crud-container'>
+    <div id="product-page-container" className="crud-page-container">
+      <div id="product-container" className="crud-container">
         <h2>Products</h2>
-        <button id='btn-add' onClick={handleAddProduct}>Add Product</button>
+        <button id="btn-add" onClick={handleAddProduct} disabled={loading}>
+          {loading ? 'Loading.....' : 'Add Product'}
+        </button>
         <ol>
           {products.map((product) => (
             <li
@@ -108,11 +122,13 @@ function Products() {
               }}
             >
               {product.name}
-              <button id='btn-delete'
+              <button
+                id="btn-delete"
                 onClick={(e) => handleDelete(e, product.id)}
                 style={{ marginLeft: '10px' }}
+                disabled={deleting}
               >
-                Delete
+                {deleting ? 'Deleting...' : 'Delete'}
               </button>
             </li>
           ))}
@@ -121,7 +137,7 @@ function Products() {
 
       <div style={{ flex: 2, padding: '20px' }}>
         {selectedProduct ? (
-          <div id='edit-product-container' className='edit-crud-container'>
+          <div id="edit-product-container" className="edit-crud-container">
             <h2>Edit Product</h2>
             <form>
               <div>
@@ -187,8 +203,8 @@ function Products() {
                 />
               </div>
               <div>
-                <button type="button" onClick={handleSave}>
-                  Save
+                <button type="button" onClick={handleSave} disabled={saving}>
+                  {saving ? 'Saving...' : 'Save'}
                 </button>
               </div>
             </form>
