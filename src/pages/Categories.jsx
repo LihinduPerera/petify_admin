@@ -93,10 +93,10 @@ function Categories() {
   }
 
   return (
-    <div id='category-page-container'>
-      <div id='category-container'>
+    <div id='category-page-container' className='crud-page-container'>
+      <div id='category-container' className='crud-container'>
         <h2>Categories</h2>
-        <button id='btn-category' onClick={handleAddCategory}>Add Category</button>
+        <button id='btn-add' onClick={handleAddCategory}>Add Category</button>
         <ol>
           {categories.map((category) => (
             <li
@@ -119,7 +119,7 @@ function Categories() {
       </div>
       <div style={{flex: 2 , padding: '20px'}}>
         {selectedCategory ? (
-          <div id='edit-category-container'>
+          <div id='edit-category-container' className='edit-crud-container'>
             <h2>Edit Category</h2>
             <form>
               <div>

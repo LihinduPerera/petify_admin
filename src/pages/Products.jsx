@@ -97,8 +97,8 @@ function Products() {
   };
 
   return (
-    <div id='product-page-container'>
-      <div id='product-container'>
+    <div id='product-page-container' className='crud-page-container'>
+      <div id='product-container' className='crud-container'>
         <h2>Products</h2>
         <button id='btn-add' onClick={handleAddProduct}>Add Product</button>
         <ol>
@@ -124,7 +124,7 @@ function Products() {
 
       <div style={{ flex: 2, padding: '20px' }}>
         {selectedProduct ? (
-          <div id='edit-product-container'>
+          <div id='edit-product-container' className='edit-crud-container'>
             <h2>Edit Product</h2>
             <form>
               <div>
