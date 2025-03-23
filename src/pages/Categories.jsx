@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+
 const API_URL = 'http://192.168.8.200:8000/categories';
 
 function Categories() {
@@ -11,10 +13,15 @@ function Categories() {
   useEffect(() => {
     const fetchCategories = async () => {
       setLoading(true);
-      const response = await fetch(API_URL);
-      const data = await response.json();
-      setCategories(data);
-      setLoading(false);
+      try {
+        const response = await axios.get(API_URL);
+        setCategories(response.data);
+      } catch (error) {
+        console.error('Error fetching categories:', error);
+        alert('Failed to fetch categories');
+      } finally {
+        setLoading(false);
+      }
     };
 
     fetchCategories();
@@ -36,43 +43,37 @@ function Categories() {
     setSaving(true);
     const updateCategory = { ...selectedCategory };
 
-    const response = await fetch(`${API_URL}/${selectedCategory.id}`, {
-      method: 'PUT',
-      headers: {
-        'Content-type': 'application/json',
-      },
-      body: JSON.stringify(updateCategory),
-    });
-
-    if (response.ok) {
-      const updatedCategoryData = await response.json();
+    try {
+      const response = await axios.put(`${API_URL}/${selectedCategory.id}`, updateCategory);
+      const updatedCategoryData = response.data;
       setCategories((prevCategories) =>
         prevCategories.map((category) =>
           category.id === updatedCategoryData.id ? updatedCategoryData : category
         )
       );
-    } else {
-      alert('Failed to update category.');
+    } catch (error) {
+      console.error('Error updating category:', error);
+      alert('Failed to update category');
+    } finally {
+      setSaving(false);
     }
-    setSaving(false);
   };
 
   const handleDelete = async (e, categoryId) => {
     e.stopPropagation();
-    setDeleting(true); 
+    setDeleting(true);
 
-    const response = await fetch(`${API_URL}/${categoryId}`, {
-      method: 'DELETE',
-    });
-
-    if (response.ok) {
+    try {
+      await axios.delete(`${API_URL}/${categoryId}`);
       setCategories((prevCategories) =>
         prevCategories.filter((category) => category.id !== categoryId)
       );
-    } else {
-      alert('Failed to delete category.');
+    } catch (error) {
+      console.error('Error deleting category:', error);
+      alert('Failed to delete category');
+    } finally {
+      setDeleting(false);
     }
-    setDeleting(false);
   };
 
   const handleAddCategory = async () => {
@@ -83,21 +84,16 @@ function Categories() {
       priority: 0,
     };
 
-    const response = await fetch(API_URL, {
-      method: 'POST',
-      headers: {
-        'Content-type': 'application/json',
-      },
-      body: JSON.stringify(newCategory),
-    });
-
-    if (response.ok) {
-      const addedCategory = await response.json();
+    try {
+      const response = await axios.post(API_URL, newCategory);
+      const addedCategory = response.data;
       setCategories((prevCategories) => [...prevCategories, addedCategory]);
-    } else {
+    } catch (error) {
+      console.error('Error adding category:', error);
       alert('Failed to add category');
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   return (
