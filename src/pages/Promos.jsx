@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 
 const API_URL = 'http://192.168.8.200:8000/promos';
 
@@ -12,9 +13,12 @@ function Promos() {
   useEffect(() => {
     const fetchPromos = async () => {
       setLoading(true);
-      const response = await fetch(API_URL);
-      const data = await response.json();
-      setPromos(data);
+      try {
+        const response = await axios.get(API_URL);
+        setPromos(response.data);
+      } catch (error) {
+        console.error('Error fetching promos:', error);
+      }
       setLoading(false);
     };
 
@@ -37,27 +41,22 @@ function Promos() {
     setSaving(true);
     const updatedPromo = { ...selectedPromo };
 
-    const response = await fetch(`${API_URL}/${selectedPromo.id}`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
+    try {
+      const response = await axios.put(`${API_URL}/${selectedPromo.id}`, {
         category: updatedPromo.category,
         title: updatedPromo.title,
         image: updatedPromo.image,
-      }),
-    });
+      });
 
-    if (response.ok) {
-      const updatedPromoData = await response.json();
+      const updatedPromoData = response.data;
       setPromos((prevPromos) =>
         prevPromos.map((promo) =>
           promo.id === updatedPromoData.id ? updatedPromoData : promo
         )
       );
-    } else {
+    } catch (error) {
       alert('Failed to update promo.');
+      console.error('Error saving promo:', error);
     }
     setSaving(false);
   };
@@ -66,16 +65,14 @@ function Promos() {
     e.stopPropagation();
     setDeleting(true);
 
-    const response = await fetch(`${API_URL}/${promoId}`, {
-      method: 'DELETE',
-    });
-
-    if (response.ok) {
+    try {
+      await axios.delete(`${API_URL}/${promoId}`);
       setPromos((prevPromos) =>
         prevPromos.filter((promo) => promo.id !== promoId)
       );
-    } else {
+    } catch (error) {
       alert('Failed to delete promo.');
+      console.error('Error deleting promo:', error);
     }
     setDeleting(false);
   };
@@ -88,19 +85,13 @@ function Promos() {
       image: '',
     };
 
-    const response = await fetch(API_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(newPromo),
-    });
-
-    if (response.ok) {
-      const addedPromo = await response.json();
+    try {
+      const response = await axios.post(API_URL, newPromo);
+      const addedPromo = response.data;
       setPromos((prevPromos) => [...prevPromos, addedPromo]);
-    } else {
+    } catch (error) {
       alert('Failed to add promo.');
+      console.error('Error adding promo:', error);
     }
     setLoading(false);
   };
