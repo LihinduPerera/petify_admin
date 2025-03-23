@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 
-const API_URL = 'http://192.168.8.200:8000/banners'; // Updated URL for the banners API
+const API_URL = 'http://192.168.8.200:8000/banners';
 
 function Banners() {
   const [banners, setBanners] = useState([]);
@@ -12,9 +13,12 @@ function Banners() {
   useEffect(() => {
     const fetchBanners = async () => {
       setLoading(true);
-      const response = await fetch(API_URL);
-      const data = await response.json();
-      setBanners(data);
+      try {
+        const response = await axios.get(API_URL);
+        setBanners(response.data);
+      } catch (error) {
+        console.error('Error fetching banners:', error);
+      }
       setLoading(false);
     };
 
@@ -37,27 +41,22 @@ function Banners() {
     setSaving(true);
     const updatedBanner = { ...selectedBanner };
 
-    const response = await fetch(`${API_URL}/${selectedBanner.id}`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
+    try {
+      const response = await axios.put(`${API_URL}/${selectedBanner.id}`, {
         category: updatedBanner.category,
         title: updatedBanner.title,
         image: updatedBanner.image,
-      }),
-    });
+      });
 
-    if (response.ok) {
-      const updatedBannerData = await response.json();
+      const updatedBannerData = response.data;
       setBanners((prevBanners) =>
         prevBanners.map((banner) =>
           banner.id === updatedBannerData.id ? updatedBannerData : banner
         )
       );
-    } else {
+    } catch (error) {
       alert('Failed to update banner.');
+      console.error('Error updating banner:', error);
     }
     setSaving(false);
   };
@@ -66,16 +65,14 @@ function Banners() {
     e.stopPropagation();
     setDeleting(true);
 
-    const response = await fetch(`${API_URL}/${bannerId}`, {
-      method: 'DELETE',
-    });
-
-    if (response.ok) {
+    try {
+      await axios.delete(`${API_URL}/${bannerId}`);
       setBanners((prevBanners) =>
         prevBanners.filter((banner) => banner.id !== bannerId)
       );
-    } else {
+    } catch (error) {
       alert('Failed to delete banner.');
+      console.error('Error deleting banner:', error);
     }
     setDeleting(false);
   };
@@ -85,22 +82,16 @@ function Banners() {
     const newBanner = {
       category: 'New Category',
       title: 'New Banner',
-      image: '', // Add a placeholder image or URL if needed
+      image: '',
     };
 
-    const response = await fetch(API_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(newBanner),
-    });
-
-    if (response.ok) {
-      const addedBanner = await response.json();
+    try {
+      const response = await axios.post(API_URL, newBanner);
+      const addedBanner = response.data;
       setBanners((prevBanners) => [...prevBanners, addedBanner]);
-    } else {
+    } catch (error) {
       alert('Failed to add banner.');
+      console.error('Error adding banner:', error);
     }
     setLoading(false);
   };
