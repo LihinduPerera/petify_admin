@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 
 const API_URL = 'http://192.168.8.200:8000/products';
 
@@ -12,9 +13,12 @@ function Products() {
   useEffect(() => {
     const fetchProducts = async () => {
       setLoading(true);
-      const response = await fetch(API_URL);
-      const data = await response.json();
-      setProducts(data);
+      try {
+        const response = await axios.get(API_URL);
+        setProducts(response.data);
+      } catch (error) {
+        console.error('Failed to fetch products:', error);
+      }
       setLoading(false);
     };
 
@@ -37,22 +41,14 @@ function Products() {
     setSaving(true);
     const updatedProduct = { ...selectedProduct };
 
-    const response = await fetch(`${API_URL}/${selectedProduct.id}`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(updatedProduct),
-    });
-
-    if (response.ok) {
-      const updatedProductData = await response.json();
+    try {
+      const response = await axios.put(`${API_URL}/${selectedProduct.id}`, updatedProduct);
       setProducts((prevProducts) =>
         prevProducts.map((product) =>
-          product.id === updatedProductData.id ? updatedProductData : product
+          product.id === response.data.id ? response.data : product
         )
       );
-    } else {
+    } catch (error) {
       alert('Failed to update product.');
     }
     setSaving(false);
@@ -62,15 +58,12 @@ function Products() {
     e.stopPropagation();
     setDeleting(true);
 
-    const response = await fetch(`${API_URL}/${productId}`, {
-      method: 'DELETE',
-    });
-
-    if (response.ok) {
+    try {
+      await axios.delete(`${API_URL}/${productId}`);
       setProducts((prevProducts) =>
         prevProducts.filter((product) => product.id !== productId)
       );
-    } else {
+    } catch (error) {
       alert('Failed to delete product.');
     }
     setDeleting(false);
@@ -88,18 +81,10 @@ function Products() {
       quantity: 0,
     };
 
-    const response = await fetch(API_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(newProduct),
-    });
-
-    if (response.ok) {
-      const addedProduct = await response.json();
-      setProducts((prevProducts) => [...prevProducts, addedProduct]);
-    } else {
+    try {
+      const response = await axios.post(API_URL, newProduct);
+      setProducts((prevProducts) => [...prevProducts, response.data]);
+    } catch (error) {
       alert('Failed to add product.');
     }
     setLoading(false);
