@@ -1,26 +1,29 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 
 function MedicationPage() {
   const [users, setUsers] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null);
   const [userPets, setUserPets] = useState([]);
-  const [selectedPet, setSelectedPet] = useState(null); 
+  const [selectedPet, setSelectedPet] = useState(null);
   const [medicals, setMedicals] = useState([]);
   const [newMedical, setNewMedical] = useState({
-    date: '',
-    medication: '',
-    notes: '',
-    status: 'Active',
+    date: "",
+    medication: "",
+    notes: "",
+    status: "Active",
   });
+  const [editingMedical, setEditingMedical] = useState(null); // New state to track which medical record is being edited
 
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const response = await axios.get('http://192.168.8.200:8000/auth/users');
+        const response = await axios.get(
+          "http://192.168.8.200:8000/auth/users"
+        );
         setUsers(response.data);
       } catch (error) {
-        console.error('Error fetching users:', error);
+        console.error("Error fetching users:", error);
       }
     };
 
@@ -29,29 +32,36 @@ function MedicationPage() {
 
   const fetchUserPets = async (userId) => {
     try {
-      const response = await axios.get(`http://192.168.8.200:8000/${userId}/pets`);
+      const response = await axios.get(
+        `http://192.168.8.200:8000/${userId}/pets`
+      );
       setUserPets(response.data);
     } catch (error) {
-      console.error('Error fetching pets:', error);
+      console.error("Error fetching pets:", error);
     }
   };
 
   const fetchPetMedicals = async (petId) => {
     try {
-      const response = await axios.get(`http://192.168.8.200:8000/${petId}/medicals`);
+      const response = await axios.get(
+        `http://192.168.8.200:8000/${petId}/medicals`
+      );
       setMedicals(response.data);
     } catch (error) {
-      console.error('Error fetching medicals:', error);
+      console.error("Error fetching medicals:", error);
     }
   };
 
   const handleUserClick = (user) => {
     setSelectedUser(user);
+    setSelectedPet(null);
+    setUserPets([]);
     fetchUserPets(user.id);
   };
 
   const handlePetClick = (pet) => {
     setSelectedPet(pet);
+    setMedicals([]);
     fetchPetMedicals(pet._id);
   };
 
@@ -63,46 +73,80 @@ function MedicationPage() {
   const handleAddMedical = async () => {
     if (!selectedPet) return;
 
+    const medicalData = {
+      ...newMedical,
+      date: newMedical.date
+        ? new Date(newMedical.date).toISOString().split("T")[0]
+        : "", // Format date as YYYY-MM-DD
+    };
+    console.log(medicalData)
+
     try {
       const response = await axios.post(
         `http://192.168.8.200:8000/${selectedPet._id}/medicals`,
-        newMedical
+        medicalData
       );
       setMedicals((prev) => [...prev, response.data]);
-      setNewMedical({ date: '', medication: '', notes: '', status: 'Active' });
+      setNewMedical({ date: "", medication: "", notes: "", status: "Active" });
     } catch (error) {
-      console.error('Error adding medical:', error);
+      console.error("Error adding medical:", error);
     }
   };
 
-  const handleUpdateMedical = async (medicalId) => {
+  const handleUpdateMedical = async () => {
+    if (!editingMedical) return;
+  
+    // Ensure that the date is correctly formatted as 'YYYY-MM-DD'
     const updatedData = {
       ...newMedical,
-      date: newMedical.date || new Date().toISOString(),
+      date: newMedical.date ? new Date(newMedical.date).toISOString().split("T")[0] : "",
     };
-
+  
+    if (!updatedData.date) {
+      console.error("Date is required and cannot be empty.");
+      return;
+    }
+  
     try {
       const response = await axios.put(
-        `http://192.168.8.200:8000/medicals/${medicalId}`,
+        `http://192.168.8.200:8000/medicals/${editingMedical._id}`,
         updatedData
       );
+  
       setMedicals((prev) =>
         prev.map((medical) =>
-          medical.id === medicalId ? { ...medical, ...response.data } : medical
+          medical._id === editingMedical._id ? { ...medical, ...response.data } : medical
         )
       );
+
+      setEditingMedical(null);
+      setNewMedical({ date: "", medication: "", notes: "", status: "Active" });
     } catch (error) {
-      console.error('Error updating medical:', error);
+      console.error("Error updating medical:", error);
     }
   };
-
+  
   const handleDeleteMedical = async (medicalId) => {
     try {
       await axios.delete(`http://192.168.8.200:8000/medicals/${medicalId}`);
-      setMedicals((prev) => prev.filter((medical) => medical.id !== medicalId));
+
+      setMedicals([]);
+      if (selectedPet) {
+        fetchPetMedicals(selectedPet._id);
+      }
     } catch (error) {
-      console.error('Error deleting medical:', error);
+      console.error("Error deleting medical:", error);
     }
+  };
+
+  const handleEditMedical = (medical) => {
+    setEditingMedical(medical);
+    setNewMedical({
+      date: medical.date,
+      medication: medical.medication,
+      notes: medical.notes,
+      status: medical.status,
+    });
   };
 
   return (
@@ -127,7 +171,9 @@ function MedicationPage() {
 
         {selectedUser && (
           <section className="pet-list">
-            <h2 className="section-title">Pets for User: {selectedUser.name}</h2>
+            <h2 className="section-title">
+              Pets for User: {selectedUser.name}
+            </h2>
             <ul>
               {userPets.length > 0 ? (
                 userPets.map((pet) => (
@@ -152,23 +198,26 @@ function MedicationPage() {
 
         {selectedPet && (
           <section className="medical-records">
-            <h2 className="section-title">Medical Records for Pet: {selectedPet.name}</h2>
+            <h2 className="section-title">
+              Medical Records for Pet: {selectedPet.name}
+            </h2>
             <ul>
               {medicals.length > 0 ? (
                 medicals.map((medical) => (
-                  <li key={medical.id} className="medical-item">
+                  <li key={medical._id} className="medical-item">
                     <strong>Medication:</strong> {medical.medication} <br />
-                    <strong>Date:</strong> {new Date(medical.date).toLocaleDateString()} <br />
+                    <strong>Date:</strong>{" "}
+                    {new Date(medical.date).toLocaleDateString()} <br />
                     <strong>Status:</strong> {medical.status} <br />
                     <button
                       className="update-btn"
-                      onClick={() => handleUpdateMedical(medical.id)}
+                      onClick={() => handleEditMedical(medical)} // Set the selected medical for editing
                     >
                       Update
                     </button>
                     <button
                       className="delete-btn"
-                      onClick={() => handleDeleteMedical(medical.id)}
+                      onClick={() => handleDeleteMedical(medical._id)}
                     >
                       Delete
                     </button>
@@ -179,19 +228,23 @@ function MedicationPage() {
               )}
             </ul>
 
-            <h3 className="form-title">Add a New Medical Record</h3>
+            <h3 className="form-title">{editingMedical ? "Update Medical Record" : "Add a New Medical Record"}</h3>
             <form
               className="medical-form"
               onSubmit={(e) => {
                 e.preventDefault();
-                handleAddMedical();
+                if (editingMedical) {
+                  handleUpdateMedical(); // Update medical if we are editing
+                } else {
+                  handleAddMedical(); // Add new medical if not editing
+                }
               }}
             >
               <label>
                 Date:
                 <input
                   className="form-input"
-                  type="datetime-local"
+                  type="date"
                   name="date"
                   value={newMedical.date}
                   onChange={handleNewMedicalChange}
@@ -229,7 +282,9 @@ function MedicationPage() {
                   <option value="Pending">Pending</option>
                 </select>
               </label>
-              <button className="submit-btn" type="submit">Add Medical Record</button>
+              <button className="submit-btn" type="submit">
+                {editingMedical ? "Update Medical Record" : "Add Medical Record"}
+              </button>
             </form>
           </section>
         )}
