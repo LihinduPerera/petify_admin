@@ -13,22 +13,37 @@ function MedicationPage() {
     notes: "",
     status: "Active",
   });
-  const [editingMedical, setEditingMedical] = useState(null); // New state to track which medical record is being edited
+  const [editingMedical, setEditingMedical] = useState(null);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState([]);
 
   useEffect(() => {
     const fetchUsers = async () => {
       try {
         const response = await axios.get(
-          "http://192.168.8.200:8000/auth/users"
+          `http://192.168.8.200:8000/auth/users/search/?query=${searchQuery}`
         );
         setUsers(response.data);
+        setSearchResults(response.data);
       } catch (error) {
         console.error("Error fetching users:", error);
       }
     };
 
-    fetchUsers();
-  }, []);
+    if (searchQuery === "") {
+      const fetchAllUsers = async () => {
+        try {
+          const response = await axios.get("http://192.168.8.200:8000/auth/users");
+          setUsers(response.data);
+        } catch (error) {
+          console.error("Error fetching users:", error);
+        }
+      };
+      fetchAllUsers();
+    } else {
+      fetchUsers();
+    }
+  }, [searchQuery]);
 
   const fetchUserPets = async (userId) => {
     try {
@@ -79,7 +94,6 @@ function MedicationPage() {
         ? new Date(newMedical.date).toISOString().split("T")[0]
         : "", // Format date as YYYY-MM-DD
     };
-    console.log(medicalData)
 
     try {
       const response = await axios.post(
@@ -125,7 +139,7 @@ function MedicationPage() {
       console.error("Error updating medical:", error);
     }
   };
-  
+
   const handleDeleteMedical = async (medicalId) => {
     try {
       await axios.delete(`http://192.168.8.200:8000/medicals/${medicalId}`);
@@ -149,23 +163,42 @@ function MedicationPage() {
     });
   };
 
+  const handleSearchChange = (e) => {
+    setSearchQuery(e.target.value);
+  };
+
   return (
     <div className="medication-page">
       <h1 className="page-title">Medication Page</h1>
 
       <div className="main-layout">
+        <section className="user-search">
+          <h2 className="section-title">Search Users</h2>
+          <input
+            type="text"
+            placeholder="Search by email"
+            value={searchQuery}
+            onChange={handleSearchChange}
+            className="search-input"
+          />
+        </section>
+
         <section className="user-list">
           <h2 className="section-title">Users</h2>
           <ul>
-            {users.map((user) => (
-              <li
-                key={user.id}
-                className="user-item"
-                onClick={() => handleUserClick(user)}
-              >
-                <span>{user.name}</span> <span>({user.email})</span>
-              </li>
-            ))}
+            {users.length > 0 ? (
+              users.map((user) => (
+                <li
+                  key={user.id}
+                  className="user-item"
+                  onClick={() => handleUserClick(user)}
+                >
+                  <span>{user.name}</span> <span>({user.email})</span>
+                </li>
+              ))
+            ) : (
+              <p>No users found. Try a different search or clear the search to view all users.</p>
+            )}
           </ul>
         </section>
 
@@ -211,7 +244,7 @@ function MedicationPage() {
                     <strong>Status:</strong> {medical.status} <br />
                     <button
                       className="update-btn"
-                      onClick={() => handleEditMedical(medical)} // Set the selected medical for editing
+                      onClick={() => handleEditMedical(medical)}
                     >
                       Update
                     </button>
@@ -234,9 +267,9 @@ function MedicationPage() {
               onSubmit={(e) => {
                 e.preventDefault();
                 if (editingMedical) {
-                  handleUpdateMedical(); // Update medical if we are editing
+                  handleUpdateMedical();
                 } else {
-                  handleAddMedical(); // Add new medical if not editing
+                  handleAddMedical();
                 }
               }}
             >
