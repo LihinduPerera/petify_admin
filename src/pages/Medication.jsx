@@ -109,24 +109,24 @@ function MedicationPage() {
 
   const handleUpdateMedical = async () => {
     if (!editingMedical) return;
-  
+
     // Ensure that the date is correctly formatted as 'YYYY-MM-DD'
     const updatedData = {
       ...newMedical,
       date: newMedical.date ? new Date(newMedical.date).toISOString().split("T")[0] : "",
     };
-  
+
     if (!updatedData.date) {
       console.error("Date is required and cannot be empty.");
       return;
     }
-  
+
     try {
       const response = await axios.put(
         `http://192.168.8.200:8000/medicals/${editingMedical._id}`,
         updatedData
       );
-  
+
       setMedicals((prev) =>
         prev.map((medical) =>
           medical._id === editingMedical._id ? { ...medical, ...response.data } : medical
@@ -170,10 +170,7 @@ function MedicationPage() {
   return (
     <div className="medication-page">
       <h1 className="page-title">Medication Page</h1>
-
-      <div className="main-layout">
-        <section className="user-search">
-          <h2 className="section-title">Search Users</h2>
+      <section className="user-search">
           <input
             type="text"
             placeholder="Search by email"
@@ -182,7 +179,7 @@ function MedicationPage() {
             className="search-input"
           />
         </section>
-
+      <div className="main-layout">
         <section className="user-list">
           <h2 className="section-title">Users</h2>
           <ul>
