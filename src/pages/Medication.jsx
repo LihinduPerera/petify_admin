@@ -238,6 +238,7 @@ function MedicationPage() {
                     <strong>Medication:</strong> {medical.medication} <br />
                     <strong>Date:</strong>{" "}
                     {new Date(medical.date).toLocaleDateString()} <br />
+                    <strong>Notes:</strong> {medical.notes} <br />
                     <strong>Status:</strong> {medical.status} <br />
                     <button
                       className="update-btn"
