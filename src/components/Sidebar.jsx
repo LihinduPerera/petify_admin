@@ -22,7 +22,7 @@ function Sidebar({ openSidebarToggle, OpenSidebar }) {
                 </Link>
                 <Link to="/medication">
                     <li className='sidebar-list-item'>
-                        <FaKitMedical className='icon' /> Medication
+                        <FaKitMedical className='icon' /> Medicals
                     </li>
                 </Link>
                 <Link to="/orders">

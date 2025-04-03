@@ -169,7 +169,7 @@ function MedicationPage() {
 
   return (
     <div className="medication-page">
-      <h1 className="page-title">Medication Page</h1>
+      <h1 className="page-title">Medical Page</h1>
       <section className="user-search">
           <input
             type="text"

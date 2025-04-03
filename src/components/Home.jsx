@@ -1,54 +1,67 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { BiCalendar } from "react-icons/bi";
 import { BsFillArchiveFill, BsPeopleFill } from "react-icons/bs";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import axios from 'axios';
 
 function Home() {
+    const [productCount, setProductCount] = useState(0);
+    const [customerCount, setCustomerCount] = useState(0);
+    const [medicalCount, setMedicalCount] = useState(0);
+    const [priceData, setPriceData] = useState([]);
 
-    const data = [
-        {
-          name: 'Page A',
-          uv: 4000,
-          pv: 2400,
-          amt: 2400,
-        },
-        {
-          name: 'Page B',
-          uv: 3000,
-          pv: 1398,
-          amt: 2210,
-        },
-        {
-          name: 'Page C',
-          uv: 2000,
-          pv: 9800,
-          amt: 2290,
-        },
-        {
-          name: 'Page D',
-          uv: 2780,
-          pv: 3908,
-          amt: 2000,
-        },
-        {
-          name: 'Page E',
-          uv: 1890,
-          pv: 4800,
-          amt: 2181,
-        },
-        {
-          name: 'Page F',
-          uv: 2390,
-          pv: 3800,
-          amt: 2500,
-        },
-        {
-          name: 'Page G',
-          uv: 3490,
-          pv: 4300,
-          amt: 2100,
-        },
-      ];      
+    useEffect(() => {
+        const fetchProductCount = async () => {
+            try {
+                const response = await axios.get("http://192.168.8.200:8000/product-count");
+                setProductCount(response.data.product_count);
+            } catch (error) {
+                console.error("Error fetching product count:", error);
+            }
+        };
+        fetchProductCount();
+    }, []);
+
+    useEffect(() => {
+        const fetchCustomerCount = async () => {
+            try {
+                const response = await axios.get("http://192.168.8.200:8000/auth/user-count");
+                setCustomerCount(response.data.user_count);
+            } catch (error) {
+                console.error("Error fetching customer count:", error);
+            }
+        };
+        fetchCustomerCount();
+    }, []);
+
+    useEffect(() => {
+        const fetchMedicalCount = async () => {
+            try {
+                const response = await axios.get("http://192.168.8.200:8000/medical-count");
+                setMedicalCount(response.data.medical_count);
+            } catch (error) {
+                console.error("Error fetching medical count:", error);
+            }
+        };
+        fetchMedicalCount();
+    }, []);
+
+    useEffect(() => {
+        const fetchPriceData = async () => {
+            try {
+                const response = await axios.get("http://192.168.8.200:8000/products");
+                const formattedData = response.data.slice(0,8).map((product) => ({
+                    name: product.name,
+                    old_price: product.old_price,
+                    new_price: product.new_price,
+                }));
+                setPriceData(formattedData);
+            } catch (error) {
+                console.error("Error fetching product prices:", error);
+            }
+        };
+        fetchPriceData();
+    }, []);
 
     return (
         <main className="main-container">
@@ -57,13 +70,12 @@ function Home() {
             </div>
 
             <div className="main-cards">
-
                 <div className="card">
                     <div className="card-inner">
                         <h3>Products</h3>
                         <BsFillArchiveFill className="icon" />
                     </div>
-                    <h1>300</h1>
+                    <h1>{productCount}</h1>
                 </div>
 
                 <div className="card">
@@ -71,7 +83,7 @@ function Home() {
                         <h3>Orders</h3>
                         <BsFillArchiveFill className="icon" />
                     </div>
-                    <h1>10</h1>
+                    <h1>0</h1>
                 </div>
 
                 <div className="card">
@@ -79,15 +91,15 @@ function Home() {
                         <h3>Customers</h3>
                         <BsPeopleFill className="icon" />
                     </div>
-                    <h1>33</h1>
+                    <h1>{customerCount}</h1>
                 </div>
 
                 <div className="card">
                     <div className="card-inner">
-                        <h3>Medications</h3>
+                        <h3>Medicals</h3>
                         <BiCalendar className="icon" />
                     </div>
-                    <h1>10</h1>
+                    <h1>{medicalCount}</h1>
                 </div>
             </div>
 
@@ -96,7 +108,7 @@ function Home() {
                     <LineChart
                         width={500}
                         height={300}
-                        data={data}
+                        data={priceData}
                         margin={{
                             top: 5,
                             right: 30,
@@ -109,8 +121,8 @@ function Home() {
                         <YAxis />
                         <Tooltip />
                         <Legend />
-                        <Line type="monotone" dataKey="pv" stroke="#8884d8" activeDot={{ r: 8 }} />
-                        <Line type="monotone" dataKey="uv" stroke="#82ca9d" />
+                        <Line type="monotone" dataKey="old_price" stroke="#8884d8" activeDot={{ r: 8 }} />
+                        <Line type="monotone" dataKey="new_price" stroke="#82ca9d" />
                     </LineChart>
                 </ResponsiveContainer>
             </div>
