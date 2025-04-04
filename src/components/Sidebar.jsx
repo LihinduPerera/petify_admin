@@ -6,6 +6,7 @@ import { FaDog, FaKitMedical } from 'react-icons/fa6';
 import { MdPhotoAlbum } from 'react-icons/md';
 
 function Sidebar({ openSidebarToggle, OpenSidebar }) {
+
     return (
         <aside id='sidebar' className={openSidebarToggle ? 'sidebar-responsive' : ''}>
             <div className='sidebar-title'>
@@ -15,7 +16,7 @@ function Sidebar({ openSidebarToggle, OpenSidebar }) {
                 <span className='icon close_icon' onClick={OpenSidebar}>X</span>
             </div>
             <ul className='sidebar-list'>
-                <Link to="/">
+                <Link to="/home">
                     <li className='sidebar-list-item'>
                         <BsGrid1X2Fill className='icon' /> Dashboard
                     </li>

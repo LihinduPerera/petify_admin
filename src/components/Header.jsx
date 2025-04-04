@@ -1,5 +1,5 @@
 import React from 'react'
-import { BsFillBellFill , BsFillEnvelopeFill , BsPersonCircle , BsSearch , BsJustify } from 'react-icons/bs'
+import { BsPersonCircle , BsJustify } from 'react-icons/bs'
 
 function Header({OpenSidebar}) {
   return (
@@ -10,8 +10,6 @@ function Header({OpenSidebar}) {
         <div className='header-left'>
         </div>
         <div className='header-right'>
-            <BsFillBellFill className='icon'/>
-            <BsFillEnvelopeFill className='icon'/>
             <BsPersonCircle className='icon'/>
         </div>
     </header>
