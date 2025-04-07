@@ -496,6 +496,7 @@ body{
 }
 
 .login-link {
+  color: black;
   text-align: center;
   margin-top: 15px;
 }
@@ -503,10 +504,9 @@ body{
 .login-link a {
   color: #007bff;
   text-decoration: none;
-  color: black;
 }
 
-.login-link a:hover {
+.slogin-link a:hover {
   text-decoration: underline;
 }
 
